@@ -51,7 +51,6 @@ func getId() chan interface{} {
 }
 
 func (h *HTTPPost) GetByID(c *gin.Context) {
-	fmt.Println(1234)
 
 	fmt.Println(c.Query("id"))
 
