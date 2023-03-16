@@ -1,4 +1,4 @@
-package auth
+package repos
 
 type enterDTO struct {
 	userName string

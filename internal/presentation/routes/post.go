@@ -6,8 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sync"
+	"time"
 
 	model "github.com/Nau077/cassandra-golang-sv/internal/presentation/model"
+	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 )
 
@@ -50,7 +52,7 @@ func getId() chan interface{} {
 
 }
 
-func (h *HTTPPost) GetByID(c *gin.Context) {
+func (h *HTTPPost) GetPostWithRequest(c *gin.Context) {
 
 	fmt.Println(c.Query("id"))
 
@@ -63,14 +65,31 @@ func (h *HTTPPost) GetByID(c *gin.Context) {
 }
 
 func (h *HTTPPost) InsertData(c *gin.Context) {
-	return
+
+	select {
+	case <-c.Done():
+		return
+	case posts := <-getId():
+		c.JSON(200, gin.H{
+			"users": posts,
+		})
+
+	}
+
+}
+
+func testResponse(c *gin.Context) {
+	c.String(http.StatusRequestTimeout, "timeout is over")
 }
 
 func NewPostHTTPHandler(r *gin.Engine) {
 	handler := &HTTPPost{}
 
 	api := r.Group("/post")
-	api.GET("/", handler.GetByID)
-	api.POST("/add", handler.InsertData)
-
+	api.GET("/", handler.GetPostWithRequest)
+	api.POST("/add", timeout.New(
+		timeout.WithTimeout(4000*time.Millisecond),
+		timeout.WithHandler(handler.InsertData),
+		timeout.WithResponse(testResponse),
+	))
 }

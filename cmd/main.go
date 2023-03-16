@@ -20,10 +20,6 @@ type routesM struct {
 }
 
 func main() {
-	//  r := routesM{
-	//     router: gin.Default(),
-	// }
-
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	port := "8090"
