@@ -1,0 +1,9 @@
+{
+    "HTTP": {
+        "host": "localhost",
+        "port":8090        
+    },
+    "DB": {
+            "dsn":"host=localhost user=gorm password=gorm dbname=gormdb port=54329 sslmode=disable TimeZone=Asia/Shanghai"
+    }
+}

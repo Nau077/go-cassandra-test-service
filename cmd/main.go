@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"context"
+	"log"
 
-	routes "github.com/Nau077/cassandra-golang-sv/internal/presentation/routes"
-
-	"github.com/gin-gonic/gin"
+	"github.com/Nau077/cassandra-golang-sv/internal"
 	// "os"
 	// "regexp"
 	// "github.com/gin-contrib/logger"
@@ -15,19 +13,13 @@ import (
 	// "github.com/rs/zerolog/log"
 )
 
-type routesM struct {
-	router *gin.Engine
-}
-
 func main() {
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
-	port := "8090"
+	staticPath := "./static" //os.Args[1]
+	ctx := context.Background()
+	a, err := internal.NewApp(ctx, staticPath)
 
-	routes.NewPostHTTPHandler(r)
-	r.Run(port)
-	if errHTTP := http.ListenAndServe(":"+port, r); errHTTP != nil {
-		// log.Error().Msg(errHTTP.Error())
-		fmt.Print(errHTTP.Error())
+	err = a.Run()
+	if err != nil {
+		log.Fatalf("failed to run app %s", err.Error())
 	}
 }

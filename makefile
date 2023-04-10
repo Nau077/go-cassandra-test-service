@@ -1,10 +1,10 @@
 LOCAL_MIGRATION_DIR=./migrations
-LOCAL_MIGRATION_DSN="host=localhost port=54322 dbname=edication-bot user=edication-bot-user password=edication-bot-password"
+LOCAL_MIGRATION_DSN="host=localhost port=54329 dbname=gormdb user=gorm password=gorm"
 
 BIN_SENDER := ./bin
 PATH_STATIC_DATA := ./static
 
-.PHONY: run/bot
+.PHONY: run/server
 run/bot:
 		go run ./cmd/main.go ${PATH_STATIC_DATA}
 
@@ -26,4 +26,4 @@ create-migration:
 	goose create $(ARGS) sql
 .PHONY: run/db
 run/db:
-	docker-compose up pg-edication-bot-db
+	docker-compose up pg-test-gorm-db

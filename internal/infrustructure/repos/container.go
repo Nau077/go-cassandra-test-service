@@ -4,7 +4,9 @@ type Container struct {
 	PostRepo *PostRepo
 }
 
-func NewContainer(p *PostRepo) *Container {
+func NewContainer() *Container {
+	p := &PostRepo{}
+
 	return &Container{
 		PostRepo: p,
 	}

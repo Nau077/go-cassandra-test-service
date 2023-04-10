@@ -3,14 +3,76 @@ volumes:
   postgres_volume:
 
 services:
-  pg-edication-bot-db:
+  pg-test-gorm-db:
     image: postgres:14-alpine3.15
     container_name: "pg-post-test-db"
     environment:
-      - POSTGRES_DB=post-test-db
-      - POSTGRES_USER=test-user
-      - POSTGRES_PASSWORD=test-password
+      - POSTGRES_DB=gormdb
+      - POSTGRES_USER=gorm
+      - POSTGRES_PASSWORD=gorm
     volumes:
       - postgres_volume:/var/lib/postgresql/data
     ports:
-      - 54324:5432
+      - 54329:5432
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT}:9200
+    restart: always
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    container_name: kibana
+    volumes:
+      - kibana-data:/usr/share/kibana/data
+    ports:
+     - ${KIBANA_PORT}:5601
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+volumes:
+  elasticsearch-data:
+    driver: local
+  kibana-data:
+    driver: local
+
+zookeeper:
+  image: "bitnami/zookeeper:latest"
+  container_name: "myapp-zookeeper"
+  networks:
+    - "myapp"
+  ports:
+    - "2181:2181"
+  environment:
+    - ALLOW_ANONYMOUS_LOGIN=yes
+
+# See:
+# https://hub.docker.com/r/bitnami/kafka
+kafka:
+  image: bitnami/kafka:2.5.0
+  container_name: "myapp-kafka"
+  networks:
+    - "myapp"
+  ports:
+    - "9092:9092"
+  environment:
+    - KAFKA_BROKER_ID=1
+    - KAFKA_LISTENERS=PLAINTEXT://:9092
+    - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://10.5.0.1:9092
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    - ALLOW_PLAINTEXT_LISTENER=yes
+  depends_on:
+    - zookeeper
